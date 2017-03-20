@@ -1,0 +1,35 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+
+kimai-mysql:
+  image: mysql:5.7
+  container_name: kimai-mysql
+  ports:
+   - "3307:3306"
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=db
+    - MYSQL_USER=user
+    - MYSQL_PASSWORD=pwd
+
+kimai-webserver:
+  image: phpdockerio/nginx:latest
+  container_name: kimai-webserver
+  volumes:
+      - .:/var/www/kimai
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+  ports:
+   - "8080:80"
+  links:
+   - kimai-php-fpm
+
+kimai-php-fpm:
+  build: .
+  dockerfile: php-fpm/Dockerfile
+  container_name: kimai-php-fpm
+  volumes:
+    - .:/var/www/kimai
+    - ./php-fpm/php-ini-overrides.ini:/etc/php5/fpm/conf.d/99-overrides.ini
+  links:
+    - kimai-mysql

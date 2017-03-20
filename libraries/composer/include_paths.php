@@ -7,4 +7,9 @@ $baseDir = dirname($vendorDir);
 
 return array(
     $vendorDir . '/zendframework/zendframework1/library',
+    $vendorDir . '/phpunit/php-token-stream',
+    $vendorDir . '/phpunit/phpunit-mock-objects',
+    $vendorDir . '/phpunit/php-code-coverage',
+    $vendorDir . '/phpunit/phpunit',
+    $vendorDir . '/symfony/yaml',
 );

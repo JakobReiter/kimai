@@ -1,54 +1,65 @@
-[![Build status](https://travis-ci.org/kimai/kimai.svg?branch=master)](https://travis-ci.org/kimai/kimai "Current build status")
- [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/kimai/kimai.svg)](http://isitmaintained.com/project/kimai/kimai "Average time to resolve an issue")
- [![Percentage of issues still open](http://isitmaintained.com/badge/open/kimai/kimai.svg)](http://isitmaintained.com/project/kimai/kimai "Percentage of issues still open")
+PHPDocker.io generated environment
+==================================
 
-Kimai Time Tracking
-===================
+#Add to your project#
 
-![Kimai](https://raw.githubusercontent.com/kimai/documentation/master/assets/intro.jpg)
+  * Unzip the file.
+  * Move the `phpdocker` folder into your project. You may rename this folder (see note below)
+  * Ensure the webserver config on `docker\nginx.conf` is correct for your project. PHPDocker.io generates it either for a typical Symfony project (`web/app|app_dev.php`) or generic (`public/index.php`).
 
-This is the repository of Kimai, a open source time tracking software
-that runs on (almost) every webserver with PHP and MySQL.
-
-You can get more information about this time-tracking software:
-
-* at our [website](http://www.kimai.org)
-* at our [forum](http://forum.kimai.org)
-* in the [documentation](http://www.kimai.org/documentation/)
-
-## Features
-
-This is just a short feature list, play around with the [demo installation](http://www.kimai.org/demo/) to see all features:
+Note: you may place the files elsewhere in your project. Make sure you modify the volume linking on `docker-compose.yml` for both the webserver and php-fpm so that the folder being shared into the container is the root of your project. Also, if you're using the vagrant machine, modify accordingly the line after the `#Bring up containers` comment.
  
-* Multi-user management
-* Every user has its own timesheet
-* Extensive and role-based permission management
-* Manage customers, projects and activities
-* Track project budgets
-* Record expenses
-* Print invoices in multiple formats (ODT, ODS, HTML)
-* Export data in multiple formats (PDF, XLS, CSV, direct print)
-* SOAP and JSON API
-* Native apps ... see our [Apps page](http://www.kimai.org/apps/)
+#How to run#
 
-![Screenshot](http://www.kimai.org/assets/kimai08.jpg)
+You have two options to run the environment, depending mainly on your host OS. Essentially, you can either run the containers on bare metal, or through a virtualised environment.
+ 
+##Linux##
 
-Getting Started
----------------
+If you run Linux, you have both choices available to you. Running directly has certain advantages, not least of which the fact there's essentially zero overhead and full access to your system's muscle.
 
-Kimai requires a webserver with PHP and a database (MySQL recommended).
-Accessing the backend through a supported browser.
+The advantage of running through a virtualised environment is mainly having your whole environment neatly packed into a single set of files for the virtual machine.
 
-Please see the [INSTALL.md](INSTALL.md) in this folder in order to set up Kimai
-on your webserver.
+The choice is up to you. If you'd rather run the containers directly:
 
-## Contributing
+  * Ensure you have the latest `docker engine` installed. Your distribution's package might be a little old, if you encounter problems, do upgrade. See https://docs.docker.com/engine/installation/
+  * Ensure you have the latest `docker-compose` installed. See [docs.docker.com/compose/install](https://docs.docker.com/compose/install/)
+  
+Once you're done, simply `cd` to the folder where you placed the files, then `docker-compose up -d`. This will initialise and start all the containers, then leave them running in the background.
+  
+##Other OS##
 
-We would love to get input from all developer out there.
-Please read our [contribution guidelines](https://github.com/kimai/kimai/blob/master/.github/CONTRIBUTING.md) to find out how.
+MacOS and Windows have no native support for docker containers. The way around this is to boot a minimal Linux virtual machine, then run the containers inside.
 
-## Support / Donate
+Whichever way to do this is entirely up to you, but PHPDocker.io already has you covered provided you have a recent version of [vagrant](https://www.vagrantup.com/) and [virtualbox](https://www.virtualbox.org/) installed.
 
-If you have a feature request that you want to be implemented or a bug that you want to have fixed, you can go to [bountysource](https://www.bountysource.com/teams/kimai/issues) and donate for a specific issue by posting a bounty. The developer who then implements this feature will get the money as soon as the feature gets merged.
+Simply `cd` to the folder where you placed the files, then `vagrant up`. This will fire up [boot2docker](http://boot2docker.io/), then initialise the containers within. You can `vagrant ssh` to act on the containers from then on.
 
-Direct Support via PayPal is also possible. Just make a comment in the issue that you want to sponsor and we will get in touch.
+##Services exposed outside your environment##
+
+You can access your application via **`localhost`**, if you're running the containers directly, or through **`192.168.33.204`** when run on a vm. nginx and mailhog both respond to any hostname, in case you want to add your own hostname on your `/etc/hosts` 
+
+Service|Address outside containers|Address outside VM
+------|---------|-----------
+Webserver|[localhost:8080](http://localhost:8080)|[192.168.33.204](http://192.168.33.204)
+
+##Hosts within your environment##
+
+You'll need to configure your application to use any services you enabled:
+
+Service|Hostname|Port number
+------|---------|-----------
+php-fpm|kimai-php-fpm|9000
+MySQL|kimai-mysql|3306 (default)
+
+#Docker compose cheatsheet#
+
+**Note 1:** you need to cd first to where your docker-compose.yml file lives
+
+**Note 2:** if you're using Vagrant, you'll need to ssh into it first
+
+  * Start containers in the background: `docker-compose up -d`
+  * Start containers on the foreground: `docker-compose up`. You will see a stream of logs for every container running.
+  * Stop containers: `docker-compose stop`
+  * Kill containers: `docker-compose kill`
+  * View container logs: `docker-compose logs`
+  * Execute command inside of container: `docker exec -it kimai-php-fpm COMMAND` where `COMMAND` is whatever you want to run. For instance, `/bin/bash` to open a console prompt.
